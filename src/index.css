@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-care-50: #eff6ff;
+  --color-care-100: #dbeafe;
+  --color-care-200: #bfdbfe;
+  --color-care-300: #93c5fd;
+  --color-care-400: #60a5fa;
+  --color-care-500: #3b82f6;
+  --color-care-600: #2563eb;
+  --color-care-700: #1d4ed8;
+  --color-care-800: #1e40af;
+  --color-care-900: #1e3a8a;
+  --color-care-950: #172554;
+  --color-emergency: #ef4444;
+  --color-emergency-dark: #dc2626;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-white text-gray-900 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-care-600 to-care-400;
+  }
+  
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+}
