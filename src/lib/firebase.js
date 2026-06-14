@@ -1,9 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator, onAuthStateChanged, signInWithEmailAndPassword, signOut, type User } from 'firebase/auth';
+import { getAuth, connectAuthEmulator, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 
-// Firebase configuration
-// Replace with your actual Firebase project config
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
@@ -13,13 +11,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
 };
 
-const hasFirebaseConfig = firebaseConfig.apiKey !== '' && firebaseConfig.projectId !== '';
+/** True when the required env vars are present and we can connect to Firebase. */
+export const firebaseConfigured = firebaseConfig.apiKey !== '' && firebaseConfig.projectId !== '';
 
-let app: ReturnType<typeof initializeApp> | null = null;
-let auth: ReturnType<typeof getAuth> | null = null;
-let db: ReturnType<typeof getFirestore> | null = null;
+let app = null;
+let auth = null;
+let db = null;
 
-if (hasFirebaseConfig) {
+if (firebaseConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
@@ -38,12 +37,12 @@ if (hasFirebaseConfig) {
     db = null;
   }
 } else {
-  console.log('Firebase not configured — using local-only mode');
+  console.log('Firebase not configured — set VITE_FIREBASE_API_KEY and VITE_FIREBASE_PROJECT_ID to enable.');
 }
 
-export { app, auth, db, hasFirebaseConfig, onAuthStateChanged, signInWithEmailAndPassword, signOut };
-export type { User };
+export { app, auth, db };
+export { onAuthStateChanged, signInWithEmailAndPassword, signOut };
 export { doc, getDoc, setDoc, onSnapshot };
 
-// Default admin email — the only account allowed to modify the counter
+/** The only email allowed to modify validation data. */
 export const ADMIN_EMAIL = 'vdlkondayash1208@gmail.com';

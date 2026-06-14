@@ -1,32 +1,28 @@
 import {
   db,
-  hasFirebaseConfig,
+  firebaseConfigured,
   doc,
   getDoc,
   setDoc,
   onSnapshot,
   ADMIN_EMAIL,
-} from './config';
-import type { User } from 'firebase/auth';
+} from '../lib/firebase';
 
-const INTERVIEW_DOC_PATH = 'metrics/interviews';
+const METRICS_DOC_PATH = 'settings/metrics';
 
-export interface InterviewData {
-  count: number;
-  lastUpdated: number; // timestamp millis
-  updatedBy: string;
-}
-
-const defaultData: InterviewData = {
-  count: 0,
+export const defaultData = {
+  validationInterviews: 0,
   lastUpdated: Date.now(),
   updatedBy: '',
 };
 
+/** True when Firestore is available for reads/writes. */
+export const firestoreAvailable = firebaseConfigured && db !== null;
+
 /**
  * Returns true if the given user is the authorized admin (founder).
  */
-export function isAdmin(user: User | null): boolean {
+export function isAdmin(user) {
   return user !== null && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 }
 
@@ -36,27 +32,28 @@ export function isAdmin(user: User | null): boolean {
  * If Firestore is not configured, calls `onUpdate` with the default value.
  * Returns an unsubscribe function.
  */
-export function subscribeInterviewCount(
-  onUpdate: (data: InterviewData) => void,
-  onError?: (err: Error) => void,
-): () => void {
-  if (!hasFirebaseConfig || !db) {
-    // Firestore not configured — use local default
+export function subscribeInterviewCount(onUpdate, onError) {
+  if (!firestoreAvailable) {
+    console.log('Firestore not configured. Counter unavailable.');
     onUpdate(defaultData);
     return () => {};
   }
 
-  const ref = doc(db, INTERVIEW_DOC_PATH);
+  const ref = doc(db, METRICS_DOC_PATH);
 
   const unsub = onSnapshot(
     ref,
     (snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.data() as InterviewData;
+        const data = snapshot.data();
+        console.log('Firestore value:', data.validationInterviews);
         onUpdate({ ...defaultData, ...data });
       } else {
         // Document doesn't exist yet — initialize it
-        setDoc(ref, defaultData).catch(() => {});
+        console.log('Firestore value: document does not exist, creating defaults');
+        setDoc(ref, defaultData).catch((err) => {
+          console.warn('Failed to create metrics document:', err);
+        });
         onUpdate(defaultData);
       }
     },
@@ -71,77 +68,79 @@ export function subscribeInterviewCount(
 }
 
 /**
- * Increment the interview counter by 1.
+ * Increment the validationInterviews counter by 1.
  * Only works if the user is the admin.
  * Throws if not authorized or Firestore is unavailable.
  */
-export async function incrementInterviewCount(user: User | null): Promise<number> {
+export async function incrementInterviewCount(user) {
   if (!isAdmin(user)) {
     throw new Error('Only the founder can modify the interview counter.');
   }
-  if (!hasFirebaseConfig || !db) {
+  if (!firestoreAvailable) {
     throw new Error('Firestore is not configured. The counter cannot persist.');
   }
 
-  const ref = doc(db, INTERVIEW_DOC_PATH);
+  const ref = doc(db, METRICS_DOC_PATH);
   const snapshot = await getDoc(ref);
   const currentData = snapshot.exists()
-    ? (snapshot.data() as InterviewData)
+    ? snapshot.data()
     : defaultData;
 
-  const newCount = currentData.count + 1;
+  const newCount = (currentData.validationInterviews ?? 0) + 1;
 
   await setDoc(ref, {
-    count: newCount,
+    validationInterviews: newCount,
     lastUpdated: Date.now(),
-    updatedBy: user!.email ?? '',
+    updatedBy: user?.email ?? '',
   });
 
+  console.log('Increment successful — new value:', newCount);
   return newCount;
 }
 
 /**
- * Decrement the interview counter by 1 (minimum 0).
+ * Decrement the validationInterviews counter by 1 (minimum 0).
  * Only works if the user is the admin.
  * Throws if not authorized or Firestore is unavailable.
  */
-export async function decrementInterviewCount(user: User | null): Promise<number> {
+export async function decrementInterviewCount(user) {
   if (!isAdmin(user)) {
     throw new Error('Only the founder can modify the interview counter.');
   }
-  if (!hasFirebaseConfig || !db) {
+  if (!firestoreAvailable) {
     throw new Error('Firestore is not configured. The counter cannot persist.');
   }
 
-  const ref = doc(db, INTERVIEW_DOC_PATH);
+  const ref = doc(db, METRICS_DOC_PATH);
   const snapshot = await getDoc(ref);
   const currentData = snapshot.exists()
-    ? (snapshot.data() as InterviewData)
+    ? snapshot.data()
     : defaultData;
 
-  const newCount = Math.max(0, currentData.count - 1);
+  const newCount = Math.max(0, (currentData.validationInterviews ?? 0) - 1);
 
   await setDoc(ref, {
-    count: newCount,
+    validationInterviews: newCount,
     lastUpdated: Date.now(),
-    updatedBy: user!.email ?? '',
+    updatedBy: user?.email ?? '',
   });
 
+  console.log('Decrement successful — new value:', newCount);
   return newCount;
 }
 
 /**
- * Fetch the current interview count (one-time read, no subscription).
+ * Fetch the current validationInterviews value (one-time read, no subscription).
  * Falls back to 0 if Firestore is unavailable.
  */
-export async function fetchInterviewCount(): Promise<number> {
-  if (!hasFirebaseConfig || !db) return 0;
+export async function fetchInterviewCount() {
+  if (!firestoreAvailable) return 0;
 
   try {
-    const ref = doc(db, INTERVIEW_DOC_PATH);
+    const ref = doc(db, METRICS_DOC_PATH);
     const snapshot = await getDoc(ref);
     if (snapshot.exists()) {
-      return (snapshot.data() as InterviewData).count;
+      return snapshot.data().validationInterviews ?? 0;
     }
     return 0;
   } catch {

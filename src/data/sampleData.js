@@ -1,67 +1,17 @@
-export interface EmergencyContact {
-  service: string;
-  number: string;
-  description: string;
-}
-
-export interface SupportMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
-export interface LanguagePhrase {
-  id: string;
-  english: string;
-  hindi: string;
-  telugu: string;
-  category: string;
-}
-
-export interface WaitlistEntry {
-  id: string;
-  name: string;
-  email: string;
-  city: string;
-  travelFrequency: string;
-  timestamp: Date;
-}
-
-export interface FeedbackEntry {
-  id: string;
-  name: string;
-  email: string;
-  feedbackType: string;
-  message: string;
-  timestamp: Date;
-}
-
-export interface PartnershipInterest {
-  id: string;
-  type: 'hospital' | 'hotel' | 'travel-agency';
-  name: string;
-  email: string;
-  phone: string;
-  city: string;
-  notes: string;
-  timestamp: Date;
-}
-
-export const emergencyContacts: EmergencyContact[] = [
-  { service: 'National Emergency Number', number: '112', description: 'All emergencies across India' },
-  { service: 'Ambulance (Govt.)', number: '108', description: 'Government ambulance service, free of charge' },
-  { service: 'Ambulance (Private)', number: '102', description: 'Private ambulance service' },
-  { service: 'Police', number: '100', description: 'Police emergency line' },
-  { service: 'Fire Brigade', number: '101', description: 'Fire emergency line' },
-  { service: 'Disaster Management', number: '1070', description: 'National Disaster Response Force' },
-  { service: 'Women Helpline', number: '1091', description: 'Women in distress helpline' },
-  { service: 'Tourist Helpline', number: '1363', description: 'Tourist support and assistance' },
-  { service: 'COVID-19 Helpline', number: '1075', description: 'COVID-19 information and support' },
-  { service: 'Poison Control', number: '1800-425-1123', description: '24/7 poison information center' },
+export const emergencyContacts = [
+  { service: 'National Emergency Number', number: '112', description: 'All emergencies across India', category: 'national' },
+  { service: 'Ambulance (Govt.)', number: '108', description: 'Government ambulance service, free of charge', category: 'medical' },
+  { service: 'Ambulance (Private)', number: '102', description: 'Private ambulance service', category: 'medical' },
+  { service: 'Police', number: '100', description: 'Police emergency line', category: 'safety' },
+  { service: 'Fire Brigade', number: '101', description: 'Fire emergency line', category: 'safety' },
+  { service: 'Disaster Management', number: '1070', description: 'National Disaster Response Force', category: 'safety' },
+  { service: 'Women Helpline', number: '1091', description: 'Women in distress helpline', category: 'support' },
+  { service: 'Tourist Helpline', number: '1363', description: 'Tourist support and assistance', category: 'support' },
+  { service: 'COVID-19 Helpline', number: '1075', description: 'COVID-19 information and support', category: 'medical' },
+  { service: 'Poison Control', number: '1800-425-1123', description: '24/7 poison information center', category: 'medical' },
 ];
 
-export const samplePhrases: LanguagePhrase[] = [
+export const medicalPhrases = [
   { id: '1', english: 'I need a doctor urgently', hindi: 'मुझे तुरंत डॉक्टर चाहिए', telugu: 'నాకు అత్యవసరంగా డాక్టర్ కావాలి', category: 'Emergency' },
   { id: '2', english: 'Where is the nearest hospital?', hindi: 'निकटतम अस्पताल कहाँ है?', telugu: 'దగ్గరి ఆసుపత్రి ఎక్కడ ఉంది?', category: 'Emergency' },
   { id: '3', english: 'I have a fever', hindi: 'मुझे बुखार है', telugu: 'నాకు జ్వరం వచ్చింది', category: 'Symptoms' },
@@ -83,7 +33,7 @@ export const roadmapData = [
   {
     phase: 'Phase 1',
     title: 'Problem Validation',
-    status: 'current' as const,
+    status: 'current',
     description: 'Conducting interviews with travelers and healthcare providers to validate pain points.',
     milestones: [
       'Interview 50+ travelers about healthcare experiences',
@@ -95,7 +45,7 @@ export const roadmapData = [
   {
     phase: 'Phase 2',
     title: 'Partnership Acquisition',
-    status: 'upcoming' as const,
+    status: 'upcoming',
     description: 'Building the healthcare provider network and establishing trust with partners.',
     milestones: [
       'Onboard 20+ hospital partners in pilot cities',
@@ -107,7 +57,7 @@ export const roadmapData = [
   {
     phase: 'Phase 3',
     title: 'MVP Pilot Launch',
-    status: 'upcoming' as const,
+    status: 'upcoming',
     description: 'Launching the platform in select cities with a curated provider network.',
     milestones: [
       'Pilot launch in Mumbai and Bangalore',
@@ -119,7 +69,7 @@ export const roadmapData = [
   {
     phase: 'Phase 4',
     title: 'Public Launch',
-    status: 'upcoming' as const,
+    status: 'upcoming',
     description: 'Expanding coverage across India with a fully verified provider network.',
     milestones: [
       'Expand to 10 major Indian cities',

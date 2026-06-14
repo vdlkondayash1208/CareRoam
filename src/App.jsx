@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -9,12 +9,14 @@ import Emergency from './pages/Emergency';
 import PartnerDashboard from './pages/PartnerDashboard';
 import FounderDashboard from './pages/FounderDashboard';
 import Waitlist from './pages/Waitlist';
+import Contact from './pages/Contact';
 import Feedback from './pages/Feedback';
 import Investor from './pages/Investor';
 
 function App() {
+  console.log("App loaded");
   return (
-    <Router>
+    <BrowserRouter>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1">
@@ -28,12 +30,13 @@ function App() {
             <Route path="/founder" element={<FounderDashboard />} />
             <Route path="/waitlist" element={<Waitlist />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/investor" element={<Investor />} />
           </Routes>
         </main>
         <Footer />
       </div>
-    </Router>
+    </BrowserRouter>
   );
 }
 
